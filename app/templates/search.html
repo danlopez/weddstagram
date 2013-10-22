@@ -1,0 +1,17 @@
+<!-- extend from base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Search</h1>
+<form action="" method="post" name="login">
+    {{form.hidden_tag()}}
+    <p>
+        Enter your wedding hashtag below:<br>
+        {{form.query(size=40, class_='form-control')}}
+        {% for error in form.errors.query %}
+        <span style="color: red;">[{{error}}]</span>
+        {% endfor %}<br>
+    </p>
+    <p><input class="btn btn-primary" type="submit" value="Search"></p>
+</form>
+{% endblock %}

@@ -1,0 +1,10 @@
+<!-- extend from base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Results for {{ query }}</h1>
+{% for photo in photos %}
+	<img src="{{ photo }} " alt="instapic"/>
+{% endfor %}
+{{ next }}
+{% endblock %}

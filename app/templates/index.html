@@ -1,7 +1,9 @@
 {% extends "base.html" %}
 {% block content %}
 <h1>Hi, {{user.nickname}}!</h1>
-{% for post in posts %}
-<div><p>{{post.author.nickname}} says: <b>{{post.body}}</b></p></div>
+<a href="{{ url_for('create_book') }}">Create a new book </a>
+<h3>Your Books</h3>
+{% for book in books %}
+<div><p>{{book.author.nickname}} created: <b>{{book.title}}</b></p></div>
 {% endfor %}
 {% endblock %}

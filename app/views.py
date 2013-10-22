@@ -1,13 +1,11 @@
 from flask import render_template, flash, redirect, session, url_for, request, g
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from app import app, db, lm, oid
-from forms import LoginForm, EditForm, SearchForm
-from models import User
+from forms import LoginForm, EditForm, SearchForm, BookForm
+from models import User, Book
 from datetime import datetime
 
 from instagram.client import InstagramAPI
-
-import pprint
 
 @app.before_request
 def before_request():
@@ -24,33 +22,32 @@ def before_request():
 @login_required
 def index():
     user = g.user
-    books = [
-        { 
-            'author': { 'nickname': 'John' }, 
-            'title': 'Beautiful day in Portland!' 
-        },
-        { 
-            'author': { 'nickname': 'Susan' }, 
-            'title': 'The Avengers movie was so cool!' 
-        }
-    ]
+    books = Book.query.filter_by(author = g.user)
     return render_template('index.html',
         title = 'Home',
         user = user,
         books = books)
 
 @app.route('/search', methods = ['GET', 'POST'])
+@app.route('/search/<int:max_tag_id>')
 @login_required
-def search():
+def search(max_tag_id = 0):
     form = SearchForm()
-    if form.validate_on_submit():
-        # api = InstagramAPI(access_token=app.config['ACCESS_TOKEN'])
+    if max_tag_id > 0 or form.validate_on_submit():
         api = InstagramAPI(client_id=app.config['INSTAGRAM_ID'], client_secret = app.config['INSTAGRAM_SECRET'])
-        tag_media, next = api.tag_recent_media(count = 20, tag_name = form.query.data)
+        if max_tag_id > 0:
+            if request.args['query']:
+                tag_name = request.args['query']
+            tag_media, next = api.tag_recent_media(count = 20, max_id = max_tag_id, tag_name = request.args['query'])
+        else:
+            tag_media, next = api.tag_recent_media(count = 20, tag_name = form.query.data)
         photos = []
         for media in tag_media:
             photos.append(media.images['thumbnail'].url)
-        max_tag_id = next.split('&')[2].split('max_tag_id=')[1]
+        try:
+            max_tag_id = next.split('&')[2].split('max_tag_id=')[1]
+        except: 
+            max_tag_id = None
         return render_template('search_results.html',
             query = form.query.data,
             photos = photos,
@@ -98,7 +95,7 @@ def user(nickname):
 @app.route('/edit', methods = ['GET', 'POST'])
 @login_required
 def edit():
-    form = EditForm()
+    form = EditForm(g.user.nickname)
     if form.validate_on_submit(): #instead of checking POST, this includes validation
         g.user.nickname = form.nickname.data
         db.session.add(g.user)
@@ -108,6 +105,19 @@ def edit():
     else:
         form.nickname.data = g.user.nickname
         return render_template('edit.html',
+            form = form)
+
+@app.route('/create_book', methods = ['GET', 'POST'])
+@login_required
+def create_book():
+    form = BookForm()
+    if form.validate_on_submit():
+        book = Book(title = form.title.data, timestamp = datetime.utcnow(), author = g.user)
+        db.session.add(book)
+        db.session.commit()
+        return redirect(url_for('search'))
+    else:
+        return render_template('create_book.html', 
             form = form)
 
 @oid.after_login
@@ -120,6 +130,7 @@ def after_login(resp):
         nickname = resp.nickname
         if nickname is None or nickname == "":
             nickname = resp.email.split('@')[0]
+        nickname = User.make_unique_nickname(nickname)
         user = User(nickname = nickname, email = resp.email)
         db.session.add(user)
         db.session.commit()
@@ -147,3 +158,13 @@ def shutdown():
     if app.config['ENV'] =='local':
         shutdown_server()
         return 'Server shutting down...'
+
+
+@app.errorhandler(404)
+def internal_error(error):
+    return render_template('404.html'), 404
+
+@app.errorhandler(500)
+def internal_error(error):
+    db.session.rollback() #do this to bring db back to working state
+    return render_template('500.html'), 500

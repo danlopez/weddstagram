@@ -18,3 +18,12 @@ SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
 INSTAGRAM_ID = '622c8eca4ee94312ad1ae1c7607f5d75'
 INSTAGRAM_SECRET = 'd5e20fd7d13c4da68529b63b717296d9'
 ACCESS_TOKEN = '31011942.622c8ec.c39d307b1c5d4111ac06c304d789a199'
+
+# mail server settings
+MAIL_SERVER = 'localhost'
+MAIL_PORT = 25
+MAIL_USERNAME = None
+MAIL_PASSWORD = None
+
+# administrator list
+ADMINS = ['you@example.com']
