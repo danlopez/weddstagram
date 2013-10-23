@@ -2,7 +2,7 @@ from flask import render_template, flash, redirect, session, url_for, request, g
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from app import app, db, lm, oid
 from forms import LoginForm, EditForm, SearchForm, BookForm
-from models import User, Book
+from models import User, Book, Picture
 from datetime import datetime
 
 from instagram.client import InstagramAPI
@@ -119,6 +119,44 @@ def create_book():
     else:
         return render_template('create_book.html', 
             form = form)
+
+@app.route('/book/<int:book_id>', methods =['POST', 'GET'])
+@login_required
+def book(book_id):
+    form = SearchForm()
+    book = Book.query.filter_by(id = book_id).first()
+    pics = Picture.query.filter_by(book_id = book_id)
+    if book == None:
+        flash('Book not found')
+        return redirect(url_for('index'))
+
+    if form.validate_on_submit():
+        api = InstagramAPI(client_id=app.config['INSTAGRAM_ID'], client_secret = app.config['INSTAGRAM_SECRET'])
+        # if max_tag_id > 0:
+        #     if request.args['query']:
+        #         tag_name = request.args['query']
+        #     tag_media, next = api.tag_recent_media(count = 20, max_id = max_tag_id, tag_name = request.args['query'])
+        # else:
+        tag_media, next = api.tag_recent_media(count = 20, tag_name = form.query.data)
+        instagram_results = []
+        for media in tag_media:
+            instagram_results.append(media.images['thumbnail'].url)
+        try:
+            max_tag_id = next.split('&')[2].split('max_tag_id=')[1]
+        except: 
+            max_tag_id = None
+        return render_template('book.html',
+            query = form.query.data,
+            instagram_results = instagram_results,
+            pics = pics,
+            form = form,
+            next = max_tag_id,
+            book = book)
+
+    return render_template('book.html',
+        book = book,
+        pics = pics,
+        form = form)
 
 @oid.after_login
 def after_login(resp):

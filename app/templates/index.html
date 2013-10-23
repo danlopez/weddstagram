@@ -4,6 +4,6 @@
 <a href="{{ url_for('create_book') }}">Create a new book </a>
 <h3>Your Books</h3>
 {% for book in books %}
-<div><p>{{book.author.nickname}} created: <b>{{book.title}}</b></p></div>
+<div><p>{{book.author.nickname}} created: <a href = "/book/{{ book.id }}">{{book.title}}</a></p></div>
 {% endfor %}
 {% endblock %}
