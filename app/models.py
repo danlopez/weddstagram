@@ -54,5 +54,7 @@ class Book(db.Model):
 class Picture(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     #caption (eventually)
-    url = db.Column(db.String(140))
+    thumb_url = db.Column(db.String(140))
+    full_url = db.Column(db.String(140))
+    instagram_user = db.Column(db.String(140))
     book_id = db.Column(db.Integer, db.ForeignKey('book.id'))

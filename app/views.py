@@ -1,4 +1,4 @@
-from flask import render_template, flash, redirect, session, url_for, request, g
+from flask import render_template, flash, redirect, session, url_for, request, g, jsonify
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from app import app, db, lm, oid
 from forms import LoginForm, EditForm, SearchForm, BookForm
@@ -147,7 +147,7 @@ def book(book_id):
             max_tag_id = None
         return render_template('book.html',
             query = form.query.data,
-            instagram_results = instagram_results,
+            instagram_results = tag_media,
             pics = pics,
             form = form,
             next = max_tag_id,
@@ -206,3 +206,28 @@ def internal_error(error):
 def internal_error(error):
     db.session.rollback() #do this to bring db back to working state
     return render_template('500.html'), 500
+
+
+@app.route('/add_pic_to_book', methods=['POST'])
+@login_required
+def add_to_book():
+    thumb_url = request.form['thumb_url']
+    full_url = request.form['full_url']
+    book_id = request.form['book_id']
+    username = request.form['username']
+    pic = Picture(thumb_url = thumb_url,full_url = full_url, instagram_user = username, book_id = book_id)
+    db.session.add(pic)
+    db.session.commit()
+    return jsonify({
+        'error': 'none'
+        })
+
+@app.route('/delete_book/<int:book_id>')
+@login_required
+def delete_book(book_id):
+    book = Book.query.filter_by(id = book_id).first()
+    if book.user_id !=g.user.id:
+        flash("You don't have permission to delete this book.")
+    db.session.delete(book)
+    db.session.commit()
+    return redirect(url_for('index'))
