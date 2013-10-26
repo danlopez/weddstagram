@@ -1,0 +1,13 @@
+.instapic {
+	cursor: move;
+}
+#current-book.over {
+	border: 1px dashed black;
+	background: #e6e6e6;
+}
+#current-book * {
+	pointer-events: none;
+}
+h3 button {
+	margin: 0 20px;
+}

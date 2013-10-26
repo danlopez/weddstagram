@@ -1,0 +1,47 @@
+<!-- extend from base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+		<h3>{{ book.title }} <a class="pull-right btn btn-danger" href="/delete_book/{{ book.id }}">Delete Book</a><button class="pull-right btn btn-success">Print this book</button></h3>
+		<form action="" method="post" name="login" class="form-inline" role="form">
+			<div class="form-group">
+			    {{form.hidden_tag()}}
+		    	<label class="sr-only">Enter a # to add photos</label>
+		        {{form.query(size=40, class_='form-control', placeholder='#yourweddinghashtaghere')}}
+			</div>
+			    <button class="btn btn-primary" type="submit" class="form-control">Search</button>
+		        {% for error in form.errors.query %}
+		        <span style="color: red;">[{{error}}]</span>
+		        {% endfor %}
+		</form>
+
+</div>
+<hr>
+
+<div class="row" id = "current-book">
+	<h5>Your Book:</h5>
+	<div class="pics">
+		{% for picture in pics %}
+		<img draggable="true" src="{{ picture.thumb_url }}"/>
+		{% else %}
+		<p>Looks like you don't have any pictures in this book! Find pictures by hashtag above. Be sure to use only pictures from your friends, your event.</p>
+	{% endfor %}
+	</div>
+
+</div>
+
+{% if instagram_results %}
+<div class="row">
+	<h5>Results for {{ query }}</h5>
+	<p>Drag a photo to your book to add it</p>
+	{% for instagram_result in instagram_results %}
+	<img draggable="true" src="{{ instagram_result.images['thumbnail'].url }}" data-full="{{ instagram_result.images['standard_resolution'].url }}" data-user = "{{ instagram_result.user.username }}"class="instapic" alt="instapic"/>
+	{% endfor %}
+	{% if next %}
+	<button class="btn btn-inverse">More Pictures</button>
+	{% endif %}
+</div>
+
+{% endif %}
+{% endblock %}
