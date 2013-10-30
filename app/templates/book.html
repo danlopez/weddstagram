@@ -27,7 +27,7 @@
 		<button id="delete-pics" class="btn btn-sm btn-warning">Delete Selected</button>
 		<ul id="pics" class="pic-sorter">
 		{% for picture in pics %}
-			<li><img src="{{ picture.thumb_url }}"/></li>
+			<li id = "{{ picture.instagram_id }}"><img src="{{ picture.thumb_url }}" /></li>
 		{% else %}
 			<p class="no-pics">Looks like you don't have any pictures in this book! Find pictures by hashtag above. Be sure to use only pictures from your friends, your event.</p>
 		{% endfor %}

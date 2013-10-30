@@ -5,6 +5,7 @@ from forms import LoginForm, EditForm, SearchForm, BookForm
 from models import User, Book, Picture
 from datetime import datetime
 import json
+import pprint
 
 from instagram.client import InstagramAPI
 
@@ -126,7 +127,7 @@ def create_book():
 def book(book_id):
     form = SearchForm()
     book = Book.query.filter_by(id = book_id).first()
-    pics = Picture.query.filter_by(book_id = book_id)
+    pics = Picture.query.filter_by(book_id = book_id).order_by(Picture.order)
     if book == None:
         flash('Book not found')
         return redirect(url_for('index'))
@@ -228,13 +229,15 @@ def add_to_book():
 def update_book():
     pics_array = json.loads(request.form['pics_array'])
     book_id = request.form['book_id']
-    print book_id
-    print book_id
     for item in pics_array:
         pic = Picture.query.filter_by(instagram_id = item['id'], book_id = book_id).first()
+        print pic
         if pic == None: #create a new picture
-            pic = Picture(thumb_url = item['thumb_url'], full_url = item['full_url'], instagram_user = item['instagram_user'], book_id = book_id, order = item['order'])
-            db.session.add(pic)
+            pic = Picture(thumb_url = item['thumb_url'], full_url = item['full_url'], instagram_user = item['instagram_user'], book_id = book_id, order = item['order'], instagram_id = item['id'])
+        else:
+            pic.order = item['order']
+        db.session.add(pic)
+
     db.session.commit()
     return jsonify({
         'error': 'none'
