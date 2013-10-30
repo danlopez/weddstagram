@@ -1,3 +1,4 @@
+
 .instapic {
 	cursor: move;
 }
@@ -5,9 +6,37 @@
 	border: 1px dashed black;
 	background: #e6e6e6;
 }
-#current-book * {
+.no-pointer {
 	pointer-events: none;
 }
 h3 button {
 	margin: 0 20px;
 }
+.pic-sorter {
+	padding: 0;
+}
+.pic-sorter img {
+	margin: 5px;
+}
+.pic-sorter li {
+	/*margin: 10px;*/
+	display: inline-block;
+}
+#current-book li.selected {
+	background: #3498DB;
+}
+#current-book .btn {
+	display: none;
+	margin: 0 10px;
+}
+.ui-sortable-placeholder {
+	visibility: visible !important;
+	background: lightgray;
+	display: inline-block;
+}
+img {
+	vertical-align: bottom;
+}
+/*.ui-sortable-helper {
+	display: none !important;
+}*/

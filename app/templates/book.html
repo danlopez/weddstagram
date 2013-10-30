@@ -21,12 +21,17 @@
 
 <div class="row" id = "current-book">
 	<h5>Your Book:</h5>
-	<div class="pics">
+	<div >
+		<hr>
+		<button id="save" class="btn btn-sm btn-primary">Save Order</button>
+		<button id="delete-pics" class="btn btn-sm btn-warning">Delete Selected</button>
+		<ul id="pics" class="pic-sorter">
 		{% for picture in pics %}
-		<img draggable="true" src="{{ picture.thumb_url }}"/>
+			<li><img src="{{ picture.thumb_url }}"/></li>
 		{% else %}
-		<p>Looks like you don't have any pictures in this book! Find pictures by hashtag above. Be sure to use only pictures from your friends, your event.</p>
-	{% endfor %}
+			<p class="no-pics">Looks like you don't have any pictures in this book! Find pictures by hashtag above. Be sure to use only pictures from your friends, your event.</p>
+		{% endfor %}
+		</ul>
 	</div>
 
 </div>
@@ -35,13 +40,16 @@
 <div class="row">
 	<h5>Results for {{ query }}</h5>
 	<p>Drag a photo to your book to add it</p>
-	{% for instagram_result in instagram_results %}
-	<img draggable="true" src="{{ instagram_result.images['thumbnail'].url }}" data-full="{{ instagram_result.images['standard_resolution'].url }}" data-user = "{{ instagram_result.user.username }}"class="instapic" alt="instapic"/>
-	{% endfor %}
+	<ul id = "instapics" class="pic-sorter">
+		{% for instagram_result in instagram_results %}
+		<li id = "{{ instagram_result.id }}"><img src="{{ instagram_result.images['thumbnail'].url }}" data-full="{{ instagram_result.images['standard_resolution'].url }}" data-user = "{{ instagram_result.user.username }}"class="instapic" alt="instapic"/></li>
+		{% endfor %}
+	</ul>
 	{% if next %}
 	<button class="btn btn-inverse">More Pictures</button>
 	{% endif %}
 </div>
 
 {% endif %}
+<input type="hidden" id="book_id" value="{{ book.id }}"
 {% endblock %}

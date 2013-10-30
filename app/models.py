@@ -58,3 +58,5 @@ class Picture(db.Model):
     full_url = db.Column(db.String(140))
     instagram_user = db.Column(db.String(140))
     book_id = db.Column(db.Integer, db.ForeignKey('book.id'))
+    instagram_id = db.Column(db.String(64))
+    order = db.Column(db.Integer)

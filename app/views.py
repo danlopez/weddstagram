@@ -4,6 +4,7 @@ from app import app, db, lm, oid
 from forms import LoginForm, EditForm, SearchForm, BookForm
 from models import User, Book, Picture
 from datetime import datetime
+import json
 
 from instagram.client import InstagramAPI
 
@@ -221,6 +222,24 @@ def add_to_book():
     return jsonify({
         'error': 'none'
         })
+
+@app.route('/update_book', methods=['POST'])
+@login_required
+def update_book():
+    pics_array = json.loads(request.form['pics_array'])
+    book_id = request.form['book_id']
+    print book_id
+    print book_id
+    for item in pics_array:
+        pic = Picture.query.filter_by(instagram_id = item['id'], book_id = book_id).first()
+        if pic == None: #create a new picture
+            pic = Picture(thumb_url = item['thumb_url'], full_url = item['full_url'], instagram_user = item['instagram_user'], book_id = book_id, order = item['order'])
+            db.session.add(pic)
+    db.session.commit()
+    return jsonify({
+        'error': 'none'
+        })
+
 
 @app.route('/delete_book/<int:book_id>')
 @login_required
